@@ -1,10 +1,12 @@
-package me.gabrieltk.mkscaffold.templates
+package me.gabrieltk.mkscaffold.templates.server
 
 import com.autodsl.annotation.AutoDsl
+import me.gabrieltk.mkscaffold.utils.BKPerm
+import me.gabrieltk.mkscaffold.utils.inlineMap
 
 @AutoDsl("plugin")
-data class MCServerProject (val projName: String, val projMainClass:String, val projDesc: String, val projPackage:String,
-                        val authors: Array<String>, val prefix: String, val permissions: List<MCPermission>, var commands: List<MCCommand>, val gradleDependencies: List<GradleDependency>?)
+data class MCServerProject (val projName: String, val projMainClass:String, val projDesc: String, val projPackage:String,val gradleDependencies: List<GradleDependency>?,val authors: Array<String>,
+                             val prefix: String, val permissions: List<MCPermission>, var commands: List<MCCommand>)
 @AutoDsl("permission")
 data class MCPermission(val name: String, val description: String, val children: List<String>?, val default: BKPerm?)
 @AutoDsl("command")
@@ -12,18 +14,15 @@ data class MCCommand(val name:String, val description: String, val usage:String,
 @AutoDsl("mavenDep")
 data class GradleDependency(val group: String, val artifact: String, val version: String)
 //com.github.stefvanschie.inventoryframework:IF:0.5.18
-val inventoryFramework = GradleDependency(group = "com.github.stefvanschie.inventoryframework", artifact = "IF", version = "0.5.18")
-enum class BKPerm(val value: String){
-    TRUE("TRUE"),
-    FALSE("FALSE"),
-    OP("OP"),
-    NOT_OP("NOT_OP")
-}
-class PaperPlugin {
-    constructor(info: MCServerProject){
-        data = info
-    }
-    val data: MCServerProject
+val inventoryFramework = GradleDependency(
+    group = "com.github.stefvanschie.inventoryframework",
+    artifact = "IF",
+    version = "0.5.18"
+)
+
+class PaperPlugin(val basicInfo: BasicInfo) : ServerTemplate(basicInfo) {
+
+    //val data: MCServerProject
     fun buildGradle(): String {
         return """
 plugins {
@@ -152,7 +151,7 @@ compileTestKotlin {
 
     fun mainClassFile():String {
         return """
- package me.gabrieltk.portalgateway
+package ${data.projPackage}
 
 
 
@@ -174,13 +173,13 @@ class ${data.projMainClass}: JavaPlugin() {
         """
     }
 
-    fun getDirTree(): Array<String>{
+    override fun getDirTree(): Array<String>{
         return arrayOf(
             "src/main/java",
             "src/main/kotlin/"+data.projPackage.replace(".", "/")
         )
     }
-    fun getFileTree(): Map<String, String>{
+    override fun getFileTree(): Map<String, String>{
         return mapOf("build.gradle" to buildGradle(),
                     "gradle.properties" to "kotlin.code.style=official",
                     "settings.gradle" to "rootProject.name = '${data.projName}'",

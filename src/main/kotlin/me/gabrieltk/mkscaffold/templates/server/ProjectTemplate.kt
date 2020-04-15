@@ -1,28 +1,29 @@
-package me.gabrieltk.mkscaffold.templates
+package me.gabrieltk.mkscaffold.templates.server
 
+import com.autodsl.annotation.AutoDsl
 import com.yg.kotlin.inquirer.components.promptConfirm
 import com.yg.kotlin.inquirer.components.promptInput
 import com.yg.kotlin.inquirer.components.promptList
 import com.yg.kotlin.inquirer.core.KInquirer
-import java.io.File
+import me.gabrieltk.mkscaffold.utils.BKPerm
 
-inline fun <T> inlineMap(iterable: Iterable<T>, separator: String, crossinline out: (v: T) -> String)
-        = iterable.joinToString(separator) { out(it) }
 
-fun <T> forEachIndexed1(iterable: Iterable<T>, out: (i: Int, v: T) -> String): String {
-    val sb = StringBuilder()
-    iterable.forEachIndexed { i, it ->
-        sb.append(out(i + 1, it))
-    }
-    return sb.toString()
+interface ProjectTemplate {
+    //val data: MCServerProject
+    fun getDirTree():Array<String>
+    fun getFileTree():Map<String, String>
+
+
 }
+@AutoDsl("project")
+data class BasicInfo(val name: String)
 
-    fun main(args: Array<String>) {
-        val base = KInquirer.promptInput("Project Name:").replace(" ", "");
-        var baseDir = base
-        if(!baseDir.endsWith("/")) baseDir += "/"
-        val r = plugin {
-            projName = base
+open class ServerTemplate : ProjectTemplate {
+    var data: MCServerProject
+
+    constructor(info: BasicInfo){
+        data = plugin {
+            projName = info.name
             prefix = KInquirer.promptInput("Plugin Prefix:")
             projDesc = KInquirer.promptInput("Project Description:")
             projPackage = KInquirer.promptInput("Project Package:")
@@ -46,7 +47,7 @@ fun <T> forEachIndexed1(iterable: Iterable<T>, out: (i: Int, v: T) -> String): S
                         var pmesg:String? = KInquirer.promptInput("Command Permission Error Message (empty for default)")
                         if(pmesg!!.isEmpty()) pmesg = null
                         permissionMessage = pmesg
-                        usage = KInquirer.promptInput("Command Usage:")
+                        usage = KInquirer.promptInput("Command Usage:", "/${name}")
                     }
                     newCommands = KInquirer.promptConfirm("Add another command?")
                 }
@@ -86,16 +87,12 @@ fun <T> forEachIndexed1(iterable: Iterable<T>, out: (i: Int, v: T) -> String): S
 
 
         }
-        val paper = PaperPlugin(r)
-        //paper.data.commands = commands
-        val build = paper.mainClassFile()
-        println(build)
-
-
-        for (dir in paper.getDirTree()) {
-            File(baseDir+dir).mkdirs()
-        }
-        for (file in paper.getFileTree()) {
-            File(baseDir+file.key).writeText(file.value)
-        }
     }
+    override fun getDirTree():Array<String>{
+        return arrayOf()
+    }
+    override fun getFileTree():Map<String, String>{
+        return mapOf()
+    }
+
+}
