@@ -68,7 +68,7 @@ bukkit {
             aliases = [${it.aliases?.joinToString(separator = ",", prefix = "'", postfix = "'")}]
             permission = '${it.permission}'
             usage = '${it.usage}'
-            // permissionMessage = 'You may not test this command!'
+            //permissionMessage = 'You may not test this command!'
             ${if (it.permissionMessage != null)  "permissionMessage = '${it.permissionMessage}'" else ""}
         } 
             """
@@ -79,11 +79,11 @@ bukkit {
     permissions {
         ${inlineMap(data.permissions, "\n") { 
             """
-        'testplugin.setstate' {
+        '${it.name}' {
             description = '${it.description}'
-            ${if (it.children != null)  "children = ['testplugin.setstate']" else ""}
-            ${if (it.default != null)  "setDefault(\'${it.default.name}\')" else ""}
-            //setDefault('OP') // 'TRUE', 'FALSE', 'OP' or 'NOT_OP'
+            ${if (it.children != null)  "children = [${it.children.joinToString(separator = ",", prefix = "'", postfix = "'")}]" else ""}
+            ${if (it.default != null)  "setDefault(\'${it.default.name}\')" else ""} 
+            // 'TRUE', 'FALSE', 'OP' or 'NOT_OP'
         }
             """
         }}
