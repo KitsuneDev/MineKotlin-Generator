@@ -77,12 +77,16 @@ bukkit {
     }
 
     permissions {
-        ${inlineMap(data.permissions, "\n") { 
+        ${inlineMap(data.permissions, "\n") {
             """
         '${it.name}' {
             description = '${it.description}'
-            ${if (it.children != null)  "children = [${it.children.joinToString(separator = ",", prefix = "'", postfix = "'")}]" else ""}
-            ${if (it.default != null)  "setDefault(\'${it.default.name}\')" else ""} 
+            ${if (it.children != null) "children = [${it.children.joinToString(
+                separator = ",",
+                prefix = "'",
+                postfix = "'"
+            )}]" else ""}
+            ${if (it.default != null) "setDefault(\'${it.default.name}\')" else ""} 
             // 'TRUE', 'FALSE', 'OP' or 'NOT_OP'
         }
             """
@@ -247,7 +251,7 @@ tasks.generateBukkitPluginDescription {
                 separator = ",",
                 prefix = "\"",
                 postfix = "\""
-            )}]" else ""}
+            )})" else ""}
                 ${if (it.default != null) "default = Permission.Default.${it.default} // \"TRUE\", \"FALSE\", \"OP\" or \"NOT_OP\"" else ""} 
             // 'TRUE', 'FALSE', 'OP' or 'NOT_OP'
             }
